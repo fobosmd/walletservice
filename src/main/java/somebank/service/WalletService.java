@@ -20,8 +20,7 @@ class WalletService implements CommandWalletService, QueryWalletService {
 
         Operation operation = new Operation(userId, amount, now());
         prepareUserMap(userId);
-        userMap.get(userId).add(operation);
-        return true;
+        return userMap.get(userId).add(operation);
     }
 
     @Override
@@ -32,8 +31,7 @@ class WalletService implements CommandWalletService, QueryWalletService {
 
         Operation operation = new Operation(userId, amount.negate(), now());
         prepareUserMap(userId);
-        userMap.get(userId).add(operation);
-        return true;
+        return userMap.get(userId).add(operation);
     }
 
     @Override

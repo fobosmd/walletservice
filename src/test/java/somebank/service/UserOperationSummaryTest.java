@@ -23,21 +23,19 @@ public class UserOperationSummaryTest {
         BigDecimal amount = BigDecimal.valueOf(10L);
 
         Operation op = new Operation(userId, amount, timestamp);
-        userOperationSummary.add(op);
+        Assert.assertTrue(userOperationSummary.add(op));
 
         Assert.assertEquals(amount, userOperationSummary.getTotalAmount());
         Assert.assertEquals(Lists.newArrayList(op), userOperationSummary.getHistory());
     }
 
     @Test
-    public void negativeAmount(){
-        BigDecimal amount = BigDecimal.valueOf(-10L);
+    public void discardNegativeAmount(){
+        Operation op = new Operation(userId, BigDecimal.valueOf(-10L), timestamp);
 
-        Operation op = new Operation(userId, amount, timestamp);
-        userOperationSummary.add(op);
-
-        Assert.assertEquals(amount, userOperationSummary.getTotalAmount());
-        Assert.assertEquals(Lists.newArrayList(op), userOperationSummary.getHistory());
+        Assert.assertFalse(userOperationSummary.add(op));
+        Assert.assertEquals(BigDecimal.ZERO, userOperationSummary.getTotalAmount());
+        Assert.assertTrue(userOperationSummary.getHistory().isEmpty());
     }
 
     @Test
@@ -45,8 +43,8 @@ public class UserOperationSummaryTest {
         Operation op1 = new Operation(userId, BigDecimal.valueOf(10L), timestamp);
         Operation op2 = new Operation(userId, BigDecimal.valueOf(-10L), timestamp);
 
-        userOperationSummary.add(op1);
-        userOperationSummary.add(op2);
+        Assert.assertTrue(userOperationSummary.add(op1));
+        Assert.assertTrue(userOperationSummary.add(op2));
 
         Assert.assertEquals(BigDecimal.ZERO, userOperationSummary.getTotalAmount());
         Assert.assertEquals(Lists.newArrayList(op1, op2), userOperationSummary.getHistory());

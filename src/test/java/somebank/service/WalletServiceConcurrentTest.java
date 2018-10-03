@@ -33,23 +33,23 @@ public class WalletServiceConcurrentTest {
     public void addWithdrawsSameUser(){
         createStream().forEach(n -> walletService.withdraw(userId, n));
 
-        Assert.assertEquals(count, walletService.history(userId).size());
-        Assert.assertEquals(expAmount.negate(), walletService.userAmount(userId));
+        Assert.assertTrue(walletService.history(userId).isEmpty());
+        Assert.assertEquals(BigDecimal.ZERO, walletService.userAmount(userId));
     }
 
     @Test
     public void addDepositsDifferentUsers(){
         createStream().forEach(n -> walletService.deposit(generateUserId(), n));
-        assertDifferentUsers(expAmount);
+        assertDifferentUsers(expAmount, count);
     }
 
     @Test
     public void addWithdrawDifferentUsers(){
         createStream().forEach(n -> walletService.withdraw(generateUserId(), n));
-        assertDifferentUsers(expAmount.negate());
+        assertDifferentUsers(BigDecimal.ZERO, 0);
     }
 
-    private void assertDifferentUsers(BigDecimal expectedAmount){
+    private void assertDifferentUsers(BigDecimal expectedAmount, long expectedHistorySize){
         BigDecimal totalAmount = BigDecimal.ZERO;
         long historySize = 0;
 
@@ -59,7 +59,7 @@ public class WalletServiceConcurrentTest {
         }
 
         Assert.assertEquals(expectedAmount, totalAmount);
-        Assert.assertEquals(count, historySize);
+        Assert.assertEquals(expectedHistorySize, historySize);
     }
 
     private Stream<BigDecimal> createStream(){
