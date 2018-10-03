@@ -35,25 +35,21 @@ class UserOperationSummary {
     }
 
     private boolean handleWithdraw(Operation operation){
-        synchronized (this){
-            if(totalAmount.get().compareTo(operation.getAmount().abs()) >= 0){
-                updateTotalAmount(operation.getAmount());
-            } else {
-                return false;
-            }
+        BigDecimal next = operation.getAmount();
+        BigDecimal prev = totalAmount.getAndUpdate(a -> a.compareTo(next.abs()) >= 0 ? a.add(next) : a);
+
+        if(prev.compareTo(next.abs()) < 0){
+            return false;
         }
+
         operations.add(operation);
         return true;
     }
 
     private boolean handleDeposit(Operation operation){
-        updateTotalAmount(operation.getAmount());
+        totalAmount.updateAndGet(a -> a.add(operation.getAmount()));
         operations.add(operation);
         return true;
-    }
-
-    private void updateTotalAmount(BigDecimal newAmount){
-        totalAmount.updateAndGet(a -> a.add(newAmount));
     }
 
     BigDecimal getTotalAmount(){
